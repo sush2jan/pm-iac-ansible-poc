@@ -1,0 +1,14 @@
+# vpc.yml
+# ---
+# playbook that runs our commision ECS cluster for any hosts in the `ecs` group, providing AWS credentials in the environment
+
+- hosts: ecs
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_REGION: "{{ aws_region }}"
+  tasks:
+    - include_tasks: tasks/ecs/facts.yml
+    - include_tasks: tasks/ecs/setup.loadbalancer.yml
+    - include_tasks: tasks/ecs/setup.ecs.yml
+

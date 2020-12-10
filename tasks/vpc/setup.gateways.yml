@@ -3,46 +3,61 @@
 # creates the gateways for the VPC, and sets up routing for the subnets
 
 # create the internet gateway, saving the output to extract the ID later
-- name: create internet gateway
+- name: Create internet gateway
   ec2_vpc_igw:
     vpc_id: "{{ vpc_id }}"
   register: create_gateway
 
-# create the NAT gateway, looking up the subnet ID by the human readable name: "private-a"
-- name: create NAT gateway
+# create the NAT gateway, looking up the subnet ID by the human readable name: "public-a"
+- name: Create NAT gateway within subnet public-a
   ec2_vpc_nat_gateway:
-    subnet_id: "{{ vpc_subnet_ids['private-a'] }}"
+    subnet_id: "{{ vpc_subnet_ids['public-a'] }}"
     region: "{{ aws_region }}"
     wait: yes
+    wait_timeout: 50
     if_exist_do_not_create: true
   register: create_nat_gateway
 
 # parse the outputs of the Ansible modules for some important details referred to when setting up routing
+- debug:
+    var=create_nat_gateway
+
 - name: "set facts: Gateway IDs and IP"
   set_fact:
     vpc_gateway_id: "{{ create_gateway.gateway_id }}"
     vpc_nat_gateway_id: "{{ create_nat_gateway.nat_gateway_id }}"
-    vpc_nat_gateway_ip: "{{ create_nat_gateway.nat_gateway_addresses.public_ip }}"
+    vpc_nat_gateway_ip: "{{ create_nat_gateway.nat_gateway_addresses[0].public_ip }}"
 
+# no tags support in ec2_vpc_igw module as of Ansible v2.2.0.0
+- name: Tag IGW
+  ec2_tag:
+    resource: "{{ vpc_gateway_id }}"
+    state: present
+    tags:
+      Name:           "{{ aws_env }}_igw"
+      Environment:    "{{ aws_env }}"
+
+- name: Tag NAT GW
+  ec2_tag:
+    resource: "{{ vpc_nat_gateway_id }}"
+    state: present
+    tags:
+      Name:           "{{ aws_env }}_nat_gw"
+      Environment:    "{{ aws_env }}"
 # update the VPCs DNS with the public IP of the new NAT gateway
-- name: update DNS with NAT gateway IP
-  route53:
-    zone: "{{ vpc_dns_zone }}"
-    private_zone: yes
-    record: nat.{{ vpc_dns_zone }}
-    type: A
-    value: "{{ vpc_nat_gateway_ip }}"
+
 
 # private route table that routes through the NAT -- attach it to our three private subnets
 - name: create route table for private subnets
   ec2_vpc_route_table:
     vpc_id: "{{ vpc_id }}"
     tags:
-      Name: "{{ vpc_name }}-private"
+      Name: "{{ aws_env }}-{{ vpc_name }}-private"
+      VPC: "{{ vpc_name }}"
+      Environment: "{{ aws_env }}"
     subnets:
       - "{{ vpc_subnet_ids['private-a'] }}"
       - "{{ vpc_subnet_ids['private-b'] }}"
-      - "{{ vpc_subnet_ids['private-c'] }}"
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ vpc_nat_gateway_id }}"
@@ -52,11 +67,26 @@
   ec2_vpc_route_table:
     vpc_id: "{{ vpc_id }}"
     tags:
-      Name: "{{ vpc_name }}-public"
+      Name: "{{ aws_env }}-{{ vpc_name }}-public"
+      VPC: "{{ vpc_name }}"
+      Environment: "{{ aws_env }}"
     subnets:
       - "{{ vpc_subnet_ids['public-a'] }}"
       - "{{ vpc_subnet_ids['public-b'] }}"
-      - "{{ vpc_subnet_ids['public-c'] }}"
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ vpc_gateway_id }}"
+  register: public_route_table
+
+- name: Launching AWS instance as bastion host
+  ec2:
+    key_name: "{{ vpc_key_pair_name }}"
+    instance_type: t2.micro
+    image: ami-0a4a70bd98c6d6441
+    instance_tags:
+      Name: "{{ aws_env }}-{{ bastion_host_name }}"
+    wait: yes
+    wait_timeout: 100
+    count: 1
+    vpc_subnet_id: "{{ vpc_subnet_ids['public-b'] }}"
+    assign_public_ip: yes

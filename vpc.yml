@@ -8,7 +8,7 @@
     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
     AWS_REGION: "{{ aws_region }}"
   tasks:
-
     - include_tasks: tasks/vpc/setup.vpc.yml
     - include_tasks: tasks/vpc/setup.gateways.yml
-    - include_tasks: tasks/vpc/facts.yml
+#    - include_tasks: tasks/vpc/facts.yml
+    - include_tasks: tasks/vpc/setup.repository.yml

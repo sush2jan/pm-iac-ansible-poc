@@ -1,0 +1,9 @@
+# tasks/vpc/setup.repository.yml
+# ---
+# creates a ECR repo
+# use the Ansible module to create our ECR, saving the output into `create_ecr`
+- name: Create ecr-repo
+  ecs_ecr:
+    name: "{{ ecr_repo_name }}"
+    region: "{{ aws_region }}"
+  register: create_ecr

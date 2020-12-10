@@ -1,0 +1,28 @@
+---
+- name: Create a target group with instance targets
+  elb_target_group:
+    name: dev-alb-tg
+    protocol: http
+    port: "{{ ecs_container_port }}"
+    vpc_id: "{{ vpc_id }}"
+    health_check_protocol: http
+    health_check_path: /
+    successful_response_codes: "200"
+    state: present
+    wait_timeout: 200
+    wait: True
+
+# Create an ALB with listeners and rules
+- name: Create application load-balancer
+  elb_application_lb:
+    name: "{{ aws_env }}-alb"
+    subnets: "{{ ecs_subnet_ids }}"
+    security_groups: "{{ ecs_security_group_ids }}"
+    scheme: internet-facing
+    listeners:
+      - Protocol: HTTP # Required. The protocol for connections from clients to the load balancer (HTTP or HTTPS) (case-sensitive).
+        Port: 8080 # Required. The port on which the load balancer is listening.
+        DefaultActions:
+          - Type: forward # Required.
+            TargetGroupName: dev-alb-tg # Required. The name of the target group
+    state: present

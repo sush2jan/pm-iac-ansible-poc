@@ -1,0 +1,188 @@
+# tasks/vpc/removetask.vpc.yml
+# ---
+# removes a VPC, configures a list of defined subnets, configures a list of defined security groups
+
+# use the Ansible module to delete our VPC, saving the output into `create_vpc
+- name: Get VPC info
+  ec2_vpc_net_facts:
+    filters:
+      "tag:Name": "{{ vpc_name }}"
+  register: myvpc
+
+- name: Set some VPC-related variables
+  set_fact:
+    vpc_id: "{{ myvpc.vpcs.0.id }}"
+
+# Delete Security Groups
+- ec2_group_info:
+    filters:
+      vpc-id: "{{ vpc_id }}"
+  register: security_group_info
+
+- set_fact:
+    group_names: "{{ security_group_info.security_groups|map(attribute='group_name')|list|difference(sg_exclusion_list) }}"
+  register: security_group_to_remove
+
+- name: "Delete group by its id"
+  ec2_group:
+    region: "{{ aws_region }}"
+    name: "{{ item }}"
+    state: absent
+  with_items: "{{ security_group_to_remove.ansible_facts.group_names }}"
+
+# Delete NAT Gateway
+# find our subnets by VPC ID that was just defined
+- name: VPC subnet facts
+  ec2_vpc_subnet_facts:
+    filters:
+      vpc-id: "{{ vpc_id }}"
+  register: vpc_subnet_facts
+
+# parse the facts output and extract the IDs with some fancy filter work:
+# - iterate each subnet found by the facts query
+# - for that subnet, define a "name: id" entry in the `vpc_subnet_ids` dictionary (or empty dictionary if it doesn't exist)
+- name: "set facts: VPC subnet IDs"
+  set_fact:
+    vpc_subnet_ids: "{{ vpc_subnet_ids | default({}) | combine({ (item.tags.Name | default('default')): item.id }) }}"
+  with_items: "{{ vpc_subnet_facts.subnets }}"
+
+- name: Get nat gateways with specific filter
+  ec2_vpc_nat_gateway_facts:
+    region: "{{ aws_region }}"
+    filters:
+      vpc-id: "{{ vpc_id }}"
+      state: ['available']
+  register: gateways_to_remove
+
+- name: delete NAT gateway
+  ec2_vpc_nat_gateway:
+    subnet_id: "{{ vpc_subnet_ids['private-a'] }}"
+    region: "{{ aws_region }}"
+    nat_gateway_id: "{{ item.nat_gateway_id }}"
+    state: absent
+    release_eip: yes
+    wait: yes
+    wait_timeout: 300
+  with_items: "{{ gateways_to_remove.result }}"
+
+# Remove EC2 instances
+- ec2_instance_facts:
+    region: "{{ aws_region }}"
+    filters:
+      vpc-id: "{{ vpc_id }}"
+      instance-type: t2.micro
+  register: ec2_to_remove
+
+- name: Terminate instances that were previously launched
+  ec2:
+    state: 'absent'
+    instance_ids: '{{ item.instance_id }}'
+    wait: yes
+    wait_timeout: 300
+  with_items: "{{ ec2_to_remove.instances }}"
+
+# Remove Subnets
+- ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_id }}"
+  register: subnet_info
+
+- set_fact:
+    subnet_cidrs: "{{ subnet_info.subnets|map(attribute='cidr_block')|list }}"
+  register: subnet_to_remove
+
+- name: Remove subnets
+  ec2_vpc_subnet:
+    state: absent
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ item }}"
+  with_items: "{{ subnet_to_remove.ansible_facts.subnet_cidrs }}"
+
+#Remove DNS hosted zones
+# create a private hosted zone for the VPC with the Ansible module
+- name: delete Route 53 private hosted zone
+  route53_zone:
+    zone: "{{ vpc_dns_zone }}"
+    state: absent
+    vpc_id: "{{ vpc_id }}"
+    vpc_region: "{{ aws_region }}"
+
+# Remove Internet Gateway
+- name: Gather facts about all Internet Gateways for an account or profile
+  ec2_vpc_igw_facts:
+    region: "{{ aws_region }}"
+  register: igw_facts
+
+- name: remove internet gateway
+  ec2_vpc_igw:
+    region: "{{ aws_region }}"
+    vpc_id: "{{ vpc_id }}"
+    state: absent
+
+#Remove Route Tables
+- name: Get public route table info
+  ec2_vpc_route_table_facts:
+    filters:
+      "tag:Name": "{{ aws_env }}-{{ vpc_name }}-public"
+  register: public_rt
+- name: Get private route table info
+  ec2_vpc_route_table_facts:
+    filters:
+      "tag:Name": "{{ aws_env }}-{{ vpc_name }}-private"
+  register: private_rt
+
+- name: Get the route table facts
+  ec2_vpc_route_table_facts:
+    filters:
+      vpc-id: "{{ vpc_id }}"
+      route-table-id:
+        - "{{ public_rt.route_tables.0.id }}"
+        - "{{ private_rt.route_tables.0.id }}"
+  when:
+    - public_rt is defined and (public_rt.route_tables | length) > 0
+    - private_rt is defined and (private_rt.route_tables | length) > 0
+  register: route_tables_to_remove
+
+- name: Debugging the result of route_tables_to_remove
+  ansible.builtin.debug:
+    msg: "{{ route_tables_to_remove }}"
+
+- name: delete route table
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_id }}"
+    region: "{{ aws_region }}"
+    route_table_id: "{{ item.id }}"
+    lookup: id
+    state: absent
+  with_items: "{{ route_tables_to_remove.route_tables }}"
+  when: route_tables_to_remove.route_tables is defined
+
+
+#Remove image-repository
+- name: Delete remaining images in our repositories
+  shell: |
+    aws ecr list-images --repository-name paymaster-demo --query 'imageIds[*]' --output text | while read imageId; do aws ecr batch-delete-image --repository-name paymaster-demo --image-ids imageDigest=$imageId; done
+
+- name: Delete ecr-repo
+  ecs_ecr:
+    name: "{{ ecr_repo_name }}"
+    region: "{{ aws_region }}"
+    state: absent
+
+# let's take 30 seconds to make sure all dependencies are fully inactive
+# before trying to delete the VPC... the NAT Gateway removal is especially
+# non-idempotent so we cannot easily re-run the deletion tasks
+- pause:
+    seconds: 10
+
+# Remove VPC
+- name: Delete the VPC
+  ec2_vpc_net:
+    name: "{{ vpc_name }}"
+    cidr_block: "{{ vpc_cidr_block }}"
+    region: "{{ aws_region }}"
+    state: absent
+    purge_cidrs: yes
+  register: vpc_delete
+
+

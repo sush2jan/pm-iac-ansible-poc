@@ -1,0 +1,15 @@
+# removetask.vpc.yml
+# ---
+# playbook that removes our VPC tasks for any hosts in the `vpc` group, providing AWS credentials in the environment
+- hosts: vpc
+  gather_facts: true
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
+    AWS_REGION: "{{ aws_region }}"
+
+  vars:
+    sg_exclusion_list:
+      - default
+  tasks:
+    - include_tasks: tasks/vpc/removetask.vpc.yml

@@ -3,26 +3,29 @@
 # creates a VPC, configures a list of defined subnets, configures a list of defined security groups
 
 # use the Ansible module to create our VPC, saving the output into `create_vpc`
-- name: create VPC
+- name: Create the VPC
   ec2_vpc_net:
     name: "{{ vpc_name }}"
     cidr_block: "{{ vpc_cidr_block }}"
+    state: "present"
     region: "{{ aws_region }}"
   register: create_vpc
 
 # parse the output of creating the VPC to extract the VPC ID -- we need to specify this in the subsequent tasks
-- name: "set fact: VPC ID"
+- name: "Create variable for VPC ID"
   set_fact:
     vpc_id: "{{ create_vpc.vpc.id }}"
 
 # iterate over our dictionary of subnets with `with_dict`, and create each one with the Ansible module
-- name: create VPC subnets
+- name: Create subnets
   ec2_vpc_subnet:
     vpc_id: "{{ vpc_id }}"
     cidr: "{{ item.value.cidr }}"
     az: "{{ item.value.az }}"
     tags:
       Name: "{{ item.key }}"
+      VPC: "{{ vpc_name }}"
+      Environment: "{{ aws_env }}"
   with_dict: "{{ vpc_subnets }}"
   register: create_vpc_subnets
 
@@ -46,7 +49,7 @@
 # create an EC2 key -- pretty simple
 - name: create EC2 key
   ec2_key:
-    name: "{{ vpc_key }}"
+    name: "{{ vpc_key_pair_name }}"
 
 # create a private hosted zone for the VPC with the Ansible module
 - name: create Route 53 private hosted zone

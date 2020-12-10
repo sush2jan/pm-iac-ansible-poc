@@ -2,22 +2,12 @@
 # ---
 # the host and group list for this example "Ansibled" project
 
-[elasticsearch]
-big.elasticsearch.ansibled
-small.elasticsearch.ansibled
-
-[aurora.cluster]
-cluster.aurora.ansibled
-
-[aurora.db]
-dba.aurora.ansibled
-dbb.aurora.ansibled
-
 [vpc]
 vpc.ansibled
 
+[ecs]
+ecs.teamenvironment
+
 [project.ansibled:children]
 vpc
-aurora.cluster
-aurora.db
-elasticsearch
+ecs
