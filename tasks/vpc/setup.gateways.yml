@@ -14,7 +14,7 @@
     subnet_id: "{{ vpc_subnet_ids['public-a'] }}"
     region: "{{ aws_region }}"
     wait: yes
-    wait_timeout: 50
+    wait_timeout: 200
     if_exist_do_not_create: true
   register: create_nat_gateway
 

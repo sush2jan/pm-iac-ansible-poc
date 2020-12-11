@@ -8,6 +8,6 @@ vpc.ansibled
 [ecs]
 ecs.teamenvironment
 
-[project.ansibled:children]
+[project_ansibled:children]
 vpc
 ecs
