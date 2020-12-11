@@ -58,18 +58,18 @@
     filters:
       vpc-id: "{{ vpc_id }}"
       state: ['available']
-  register: gateways_to_remove
+  register: nat_gateways_to_remove
 
-- name: Delete NAT gateway
+- name: Delete NAT gateway from subnet public-a
   ec2_vpc_nat_gateway:
-    subnet_id: "{{ vpc_subnet_ids['private-a'] }}"
+    subnet_id: "{{ vpc_subnet_ids['public-a'] }}"
     region: "{{ aws_region }}"
     nat_gateway_id: "{{ item.nat_gateway_id }}"
     state: absent
     release_eip: yes
     wait: yes
     wait_timeout: 300
-  with_items: "{{ gateways_to_remove.result }}"
+  with_items: "{{ nat_gateways_to_remove.result }}"
   when:
     - vpc_subnet_ids is defined
     - aws_region is defined

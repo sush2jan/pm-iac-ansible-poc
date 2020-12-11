@@ -17,7 +17,10 @@
     wait_timeout: 200
     if_exist_do_not_create: true
   register: create_nat_gateway
-
+  when:
+    - vpc_subnet_ids is defined
+    - aws_region is defined
+    -
 # parse the outputs of the Ansible modules for some important details referred to when setting up routing
 - debug:
     var=create_nat_gateway
