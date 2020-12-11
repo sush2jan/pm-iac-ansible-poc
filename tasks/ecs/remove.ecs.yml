@@ -28,6 +28,7 @@
     policy_name: "cloudwatch_create_log_group"
     policy_json: '{"Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": ["logs:CreateLogGroup"], "Resource": "*"}]}'
     state: absent
+  when: ecs_instance_iam_role is defined
 
 # Decommision the IAM role
 - name: "AWS | IAM | Delete IAM role needed for cluster EC2 instances access to AWS EC2 services"
