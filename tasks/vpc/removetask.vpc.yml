@@ -59,7 +59,7 @@
       state: ['available']
   register: gateways_to_remove
 
-- name: delete NAT gateway
+- name: Delete NAT gateway
   ec2_vpc_nat_gateway:
     subnet_id: "{{ vpc_subnet_ids['private-a'] }}"
     region: "{{ aws_region }}"
@@ -69,6 +69,9 @@
     wait: yes
     wait_timeout: 300
   with_items: "{{ gateways_to_remove.result }}"
+  when:
+    - vpc_subnet_ids is defined
+    - aws_region is defined
 
 # Remove EC2 instances
 - ec2_instance_facts:
