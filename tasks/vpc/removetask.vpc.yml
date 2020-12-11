@@ -19,10 +19,12 @@
     filters:
       vpc-id: "{{ vpc_id }}"
   register: security_group_info
+  when: vpc_id is defined
 
 - set_fact:
     group_names: "{{ security_group_info.security_groups|map(attribute='group_name')|list|difference(sg_exclusion_list) }}"
   register: security_group_to_remove
+  when: security_group_info is defined
 
 - name: "Delete group by its id"
   ec2_group:
@@ -30,6 +32,7 @@
     name: "{{ item }}"
     state: absent
   with_items: "{{ security_group_to_remove.ansible_facts.group_names }}"
+  when: security_group_to_remove is defined
 
 # Delete NAT Gateway
 # find our subnets by VPC ID that was just defined
@@ -38,6 +41,7 @@
     filters:
       vpc-id: "{{ vpc_id }}"
   register: vpc_subnet_facts
+  when: vpc_subnet_facts is defined
 
 # parse the facts output and extract the IDs with some fancy filter work:
 # - iterate each subnet found by the facts query
@@ -46,6 +50,7 @@
   set_fact:
     vpc_subnet_ids: "{{ vpc_subnet_ids | default({}) | combine({ (item.tags.Name | default('default')): item.id }) }}"
   with_items: "{{ vpc_subnet_facts.subnets }}"
+  when: vpc_subnet_facts is defined and (vpc_subnet_facts.subnets|length) > 0
 
 - name: Get nat gateways with specific filter
   ec2_vpc_nat_gateway_facts:
