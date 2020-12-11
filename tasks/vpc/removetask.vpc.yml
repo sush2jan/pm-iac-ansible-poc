@@ -12,6 +12,7 @@
 - name: Set some VPC-related variables
   set_fact:
     vpc_id: "{{ myvpc.vpcs.0.id }}"
+  when: myvpc is defined and (myvpc.vpcs|length) > 0
 
 # Delete Security Groups
 - ec2_group_info:
