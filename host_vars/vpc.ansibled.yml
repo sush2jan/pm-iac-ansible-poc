@@ -17,14 +17,14 @@ vpc_subnets:
     az: "{{ aws_region }}b"
 
 vpc_security_groups:
-  - name: vpc-iac-sg-allow-public-ssh
+  - name: ansible-iac-sg-allow-public-ssh
     description: "Allow public SSH"
     rules:
       - proto: tcp
         cidr_ip: 0.0.0.0/0
         ports:
           - 22
-  - name: vpc-iac-sg-allow-public-http
+  - name: ansible-iac-sg-allow-public-http
     description: "Allow public web traffic"
     rules:
       - proto: tcp

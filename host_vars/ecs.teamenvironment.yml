@@ -16,11 +16,11 @@ ecs_host_port: 8080
 ecs_tg_name: 'dev-alb-tg'
 
 # EC2 image that contains a Docker server + ECS Agent, AWS provides a suitable default
-#ecs_ami_id: "ami-0cf5e3f55324d3dab"
+#ecs_ami_id: "ami-0f06fc190dd71269e"
 ecs_ami_id: "ami-0cff34a042205fb12"
 
-# IAM role that will be used to call the AWS ECS API.  This is normally created when you create a default cluster through the AWS console
-ecs_instance_iam_role: "apu-poc-ecs-instance-role"
+# EC2 image that contains a Docker server + ECS Agent, AWS provides a suitable default
+ecs_instance_iam_role: "ecs-instance-role"
 
 # If you want the instances to be directly remotely accessible
 ecs_assign_public_ip: true
