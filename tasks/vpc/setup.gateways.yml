@@ -84,12 +84,12 @@
 - name: Launching AWS instance as bastion host
   ec2:
     key_name: "{{ vpc_key_pair_name }}"
-    instance_type: t2.micro
-    image: ami-0a4a70bd98c6d6441
+    instance_type: "{{ bastion_host_instance_type }}"
+    image: "{{ bastion_host_ami }}"
     instance_tags:
       Name: "{{ aws_env }}-{{ bastion_host_name }}"
     wait: yes
-    wait_timeout: 100
+    wait_timeout: 120
     count: 1
-    vpc_subnet_id: "{{ vpc_subnet_ids['public-b'] }}"
+    vpc_subnet_id: "{{ vpc_subnet_ids[bastion_host_subnet] }}"
     assign_public_ip: yes

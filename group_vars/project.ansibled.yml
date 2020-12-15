@@ -5,6 +5,9 @@
 # general details about environment
 aws_env: dev
 bastion_host_name: bastion-host
+bastion_host_ami: ami-0a4a70bd98c6d6441
+bastion_host_instance_type: t2.micro
+bastion_host_subnet: public-b
 
 # general details about our VPC
 vpc_name: apu-demo-iac-vpc
