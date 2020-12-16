@@ -4,16 +4,18 @@ ecs_instance_type: "t2.micro"
 # Region for EC2 launches
 ecs_ec2_region: "{{ aws_region }}"
 
-ecs_cluster_name: 'apu-poc-ecs-cluster'
+ecs_cluster_name: 'pm-ecs-cluster'
 ecs_ssh_key_name: "{{ vpc_key_pair_name }}"
-ecs_task_name: 'pm-poc-ecs-task-defn'
-ecs_app_name: 'pm-poc-ecs-task-defn'
-ecs_srvc_name: 'pm-poc-ecs-service'
+ecs_task_name: 'pm-ecs-task-defn'
+ecs_app_name: 'pm-ecs-task-defn'
+ecs_srvc_name: 'pm-ecs-service'
 ecs_container_port: 8080
 ecs_host_port: 8080
 
-#ECS target-group name
-ecs_tg_name: 'dev-alb-tg'
+#ECS load-balancer name
+ecs_tg_name: 'pm-alb-tg'
+ecs_alb_name: 'pm-alb'
+ecs_alb_listener_port: 8080
 
 # EC2 image that contains a Docker server + ECS Agent, AWS provides a suitable default
 #ecs_ami_id: "ami-0f06fc190dd71269e"
@@ -39,7 +41,7 @@ ecs_asg_default_cooldown: 300
 
 # Tags to set on any EC2 instances created as part of the auto scaling group
 ecs_ec2_tags:
-  - Name: "apu-demo-ecs-cluster-host"
+  - Name: "pm-ecs-cluster-host"
 
 # Perform a rolling update if the Launch Configuration has changed
 ecs_asg_replace_all_instances: yes
@@ -49,7 +51,7 @@ ecs_asg_health_check_period: 60
 ecs_asg_health_type: EC2
 
 # Name of this environment, e.g. development, test, staging, production
-ecs_env: dev
+ecs_env: poc
 
 # Cloudwatch namespacing
 cloudwatch_namespace: "/ecs/{{ ecs_cluster_name }}-{{ ecs_env }}"

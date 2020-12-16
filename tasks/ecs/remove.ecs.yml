@@ -39,7 +39,7 @@
 # Remove the ALB
 - name: Delete load balancer
   elb_application_lb:
-    name: dev-alb
+    name: "{{ aws_env }}-{{ ecs_alb_name }}"
     state: absent
 
 - pause:
@@ -48,7 +48,7 @@
 # Delete the target group
 - name: Delete target group
   elb_target_group:
-    name: dev-alb-tg
+    name: "{{ aws_env }}-{{ ecs_tg_name }}"
     vpc_id: "{{ vpc_id }}"
     protocol: http
     port: "{{ ecs_container_port }}"
@@ -69,7 +69,8 @@
     loadbalancers: "{{ ecs_service_facts_output.services[0].loadBalancers }}"
   when: ecs_service_facts_output is defined and (ecs_service_facts_output.services | length) > 0
 # so that desired count is set to 0
-- ecs_service:
+- name: "Set the desired instance count 0 for the ECE service"
+  ecs_service:
     name: "{{ ecs_srvc_name }}"
     state: present
     cluster: "{{ ecs_cluster_name }}"

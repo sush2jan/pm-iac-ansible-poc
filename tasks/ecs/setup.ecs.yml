@@ -32,7 +32,7 @@
   elb_target_group_facts:
     region: "{{ ecs_ec2_region }}"
     names:
-      - 'dev-alb-tg'
+      - "{{ aws_env }}-{{ ecs_tg_name }}"
   register: tg
 
 - debug: var=tg verbosity=3
