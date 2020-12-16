@@ -13,3 +13,42 @@
     tags:
       name: "{{ s3_bucket_name }}"
       type: "{{ s3_bucket_type }}"
+
+- name: create a distribution with an origin, logging and default cache behavior
+  cloudfront_distribution:
+    state: present
+    caller_reference: '1484796016700'
+    origins:
+      - id: 'my test origin-000111'
+        domain_name: "{{ s3_bucket_name }}.s3.amazonaws.com"
+        origin_path: "{{ cf_origin_path }}"
+    default_cache_behavior:
+      target_origin_id: 'my test origin-000111'
+      forwarded_values:
+        viewer_protocol_policy: redirect-to-https
+        query_string: true
+        cookies:
+          forward: all
+        headers:
+          - '*'
+      viewer_protocol_policy: allow-all
+      smooth_streaming: true
+      compress: true
+      allowed_methods:
+        items:
+          - GET
+          - HEAD
+        cached_methods:
+          - GET
+          - HEAD
+    logging:
+      enabled: false
+      include_cookies: false
+      bucket: mylogbucket.s3.amazonaws.com
+      prefix: myprefix/
+    default_root_object: "{{ cf_default_root_object }}"
+    viewer_certificate:
+      cloudfront_default_certificate: true
+    http_version: http2
+    enabled: true
+    comment: this is a CloudFront distribution with logging

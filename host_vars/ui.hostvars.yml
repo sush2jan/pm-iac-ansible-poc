@@ -5,3 +5,6 @@ ui_host_resource_region: "{{ aws_region }}"
 s3_bucket_name: 'pm-ansible-ui-app-bucket'
 s3_bucket_type: 'public-hosting'
 s3_bucket_versioning_enabled: 'no'
+
+cf_default_root_object: 'index.html'
+cf_origin_path: '/angular10example-calculator'
