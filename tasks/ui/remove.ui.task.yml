@@ -1,0 +1,5 @@
+# Remove the UI public hosting s3 bucket
+- s3_bucket:
+    name: "{{ s3_bucket_name }}"
+    state: absent
+    force: yes
