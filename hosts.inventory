@@ -9,7 +9,7 @@ vpc.ansibled
 ecs.teamenvironment
 
 [ui]
-ui.app
+ui.hostvars
 
 [project.ansibled:children]
 vpc

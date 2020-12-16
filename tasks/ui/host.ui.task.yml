@@ -2,7 +2,7 @@
 # ---
 # creates a S3 bucket, as a public bucket, configures cloudformation
 
-# Use the Ansible module to create our S3 bucket, for saving the output into `create_vpc`
+# Use the Ansible module to create our S3 bucket, for saving the build folder of SPA
 - name: Create S3 bucket for UI app
   s3_bucket:
     name: "{{ s3_bucket_name }}"
