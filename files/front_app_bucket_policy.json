@@ -1,0 +1,14 @@
+{
+  "Id": "PolicyPublicReadUIAppBucket",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetObject",
+        "s3:GetObjectVersion"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::pm-ansible-ui-app-bucket/*",
+      "Principal": "*"
+    }
+  ]
+}

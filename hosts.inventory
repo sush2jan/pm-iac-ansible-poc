@@ -8,6 +8,10 @@ vpc.ansibled
 [ecs]
 ecs.teamenvironment
 
+[ui]
+ui.app
+
 [project.ansibled:children]
 vpc
 ecs
+ui

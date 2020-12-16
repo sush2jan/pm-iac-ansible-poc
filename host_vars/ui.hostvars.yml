@@ -1,0 +1,7 @@
+# Region for UI app resource launches
+ui_host_resource_region: "{{ aws_region }}"
+
+#Bucket configuration used for storing the UI App build folder
+s3_bucket_name: 'pm-ansible-ui-app-bucket'
+s3_bucket_type: 'public-hosting'
+s3_bucket_versioning_enabled: 'no'

@@ -1,0 +1,15 @@
+# tasks/vpc/setup.vpc.yml
+# ---
+# creates a S3 bucket, as a public bucket, configures cloudformation
+
+# use the Ansible module to create our VPC, saving the output into `create_vpc`
+- name: Create S3 bucket for UI app
+  s3_bucket:
+    name: "{{ s3_bucket_name }}"
+    policy: "{{ lookup( 'file','front_app_bucket_policy.json' )}}"
+    state: present
+    region: "{{ ui_host_resource_region }}"
+    versioning: "{{ s3_bucket_versioning_enabled }}"
+    tags:
+      name: "{{ s3_bucket_name }}"
+      type: "{{ s3_bucket_type }}"
