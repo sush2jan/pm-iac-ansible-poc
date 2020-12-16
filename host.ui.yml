@@ -1,4 +1,4 @@
-# uihost.yml
+# host.ui.yml
 # ---
 # playbook that runs our UI host task for any hosts in the `ui` group, providing AWS credentials in the environment
 
@@ -8,4 +8,4 @@
     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
     AWS_REGION: "{{ aws_region }}"
   tasks:
-      - include_tasks: tasks/ui/uihost.task.yml
+      - include_tasks: tasks/ui/host.ui.task.yml
