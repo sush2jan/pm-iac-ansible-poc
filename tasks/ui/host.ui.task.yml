@@ -47,7 +47,7 @@
       enabled: false
       include_cookies: false
       bucket: "{{ s3_bucket_name }}.s3.amazonaws.com"
-#      prefix: myprefix/
+      prefix: uiaccesslog/
     default_root_object: "{{ cf_default_root_object }}"
     viewer_certificate:
       cloudfront_default_certificate: true
