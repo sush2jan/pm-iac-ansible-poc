@@ -20,7 +20,8 @@
     caller_reference: '1484796016700'
     origins:
       - id: "{{ s3_bucket_name }}{{ cf_origin_path }}"
-        domain_name: "http://{{ s3_bucket_name }}.s3-website-{{ ui_host_resource_region }}.amazonaws.com"
+#        domain_name: "http://{{ s3_bucket_name }}.s3-website-{{ ui_host_resource_region }}.amazonaws.com"
+        domain_name: "{{ s3_bucket_name }}.s3.amazonaws.com"
         s3_origin_config:
           origin_access_identity: ''
         origin_path: "{{ cf_origin_path }}"
