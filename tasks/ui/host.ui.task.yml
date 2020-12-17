@@ -54,3 +54,6 @@
     http_version: http2
     enabled: true
     comment: this is a CloudFront distribution with logging
+  register: ui_cf_distribution
+
+- debug: var=ui_cf_distribution verbosity=3
