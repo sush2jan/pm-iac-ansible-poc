@@ -1,5 +1,12 @@
+# Remove the cloudfront distribution
+- name: Delete a distribution
+  cloudfront_distribution:
+      state: absent
+      caller_reference: '1484796016700'
+
 # Remove the UI public hosting s3 bucket
-- s3_bucket:
-    name: "{{ s3_bucket_name }}"
-    state: absent
-    force: yes
+- name: Delete the bucket for public hosting
+  s3_bucket:
+      name: "{{ s3_bucket_name }}"
+      state: absent
+      force: yes
