@@ -19,10 +19,10 @@
     state: present
     caller_reference: '1484796016700'
     origins:
-      - id: 'my test origin-000111'
+      - id: "{{ s3_bucket_name }}{{ cf_origin_path }}"
         domain_name: "http://{{ s3_bucket_name }}.s3-website-{{ ui_host_resource_region }}.amazonaws.com"
-        S3OriginConfig:
-          OriginAccessIdentity: ''
+        s3_origin_config:
+          origin_access_identity: ''
         origin_path: "{{ cf_origin_path }}"
     default_cache_behavior:
       target_origin_id: 'my test origin-000111'
