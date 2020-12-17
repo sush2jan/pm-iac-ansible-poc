@@ -20,7 +20,8 @@
     caller_reference: '1484796016700'
     origins:
       - id: 'my test origin-000111'
-        domain_name: "{{ s3_bucket_name }}.s3.amazonaws.com"
+        domain_name: "http://{{ s3_bucket_name }}.s3-website-{{ ui_host_resource_region }}.amazonaws.com"
+        s3_origin_access_identity_enabled: true
         origin_path: "{{ cf_origin_path }}"
     default_cache_behavior:
       target_origin_id: 'my test origin-000111'
@@ -44,7 +45,7 @@
     logging:
       enabled: false
       include_cookies: false
-      bucket: mylogbucket.s3.amazonaws.com
+      bucket: "{{ s3_bucket_name }}.s3.amazonaws.com"
       prefix: myprefix/
     default_root_object: "{{ cf_default_root_object }}"
     viewer_certificate:
