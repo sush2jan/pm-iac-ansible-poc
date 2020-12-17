@@ -25,7 +25,7 @@
           origin_access_identity: ''
         origin_path: "{{ cf_origin_path }}"
     default_cache_behavior:
-      target_origin_id: 'my test origin-000111'
+      target_origin_id: "{{ s3_bucket_name }}{{ cf_origin_path }}"
       forwarded_values:
 #        viewer_protocol_policy: redirect-to-https
         query_string: true
