@@ -56,4 +56,4 @@
     comment: this is a CloudFront distribution with logging
   register: ui_cf_distribution
 
-- debug: var=ui_cf_distribution verbosity=4
+- debug: var=ui_cf_distribution verbosity=3
