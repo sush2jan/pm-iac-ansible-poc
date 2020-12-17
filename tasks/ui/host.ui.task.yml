@@ -33,7 +33,9 @@
         cookies:
           forward: all
         headers:
-          - '*'
+          - Access-Control-Request-Headers
+          - Access-Control-Request-Method
+          - Origin
       viewer_protocol_policy: allow-all
       smooth_streaming: true
       compress: true
