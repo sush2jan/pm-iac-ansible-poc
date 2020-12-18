@@ -1,14 +1,29 @@
 {
+  "Id": "PolicySPAHostingBucketPolicy",
   "Version": "2012-10-17",
   "Statement": [
     {
       "Sid": "PublicReadGetObject",
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::pm-ansible-ui-app-bucket/*",
-      "Principal": "*",
       "Action": [
         "s3:GetObject"
-      ]
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::pm-ansible-ui-app-bucket/*",
+      "Principal": "*"
+    },
+    {
+      "Sid": "PrivateWritePutObject",
+      "Action": [
+        "s3:PutObject",
+        "s3:PutObjectAcl"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::pm-ansible-ui-app-bucket/*",
+      "Principal": {
+        "AWS": [
+          "794230314968"
+        ]
+      }
     }
   ]
 }
