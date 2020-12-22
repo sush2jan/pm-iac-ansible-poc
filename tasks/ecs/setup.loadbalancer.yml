@@ -6,12 +6,18 @@
     protocol: http
     port: "{{ ecs_container_port }}"
     vpc_id: "{{ vpc_id }}"
+    region: " {{ aws_region }}"
     health_check_protocol: http
     health_check_path: /
-    successful_response_codes: "200"
+    health_check_interval: 30
+    healthy_threshold_count: 2
+    unhealthy_threshold_count: 3
+    successful_response_codes: 200
+    stickiness_enabled: no
     state: present
     wait_timeout: 200
-    wait: True
+    wait: yes
+    tags: {Name: "{{ aws_env }}-{{ ecs_tg_name }}"}
   register: elb_tg
 - debug: var=elb_tg verbosity=3
 
