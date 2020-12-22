@@ -5,7 +5,7 @@
     name: "{{ aws_env }}-{{ ecs_tg_name }}"
     protocol: http
     port: "{{ ecs_container_port }}"
-#    vpc_id: "{{ vpc_id }}"
+    vpc_id: "{{ vpc_id }}"
     region: "{{ aws_region }}"
     health_check_protocol: http
     health_check_path: /
