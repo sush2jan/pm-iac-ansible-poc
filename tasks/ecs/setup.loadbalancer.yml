@@ -11,6 +11,8 @@
     state: present
     wait_timeout: 200
     wait: True
+  register: elb_tg
+- debug: var=elb_tg verbosity=3
 
 # Create an ALB with listeners and rules
 - name: Create application load-balancer
