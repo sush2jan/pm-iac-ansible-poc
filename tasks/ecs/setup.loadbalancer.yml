@@ -1,4 +1,5 @@
 ---
+- debug: var=vpc_id
 - name: Create a target group with instance targets
   elb_target_group:
     name: "{{ aws_env }}-{{ ecs_tg_name }}"
