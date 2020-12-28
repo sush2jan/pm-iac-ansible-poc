@@ -156,7 +156,7 @@
   ansible.builtin.debug:
     msg: "{{ route_tables_to_remove }}"
 
-- name: delete route table
+- name: Delete route tables
   ec2_vpc_route_table:
     vpc_id: "{{ vpc_id }}"
     region: "{{ aws_region }}"
