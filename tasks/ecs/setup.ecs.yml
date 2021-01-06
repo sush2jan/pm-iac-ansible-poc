@@ -14,7 +14,7 @@
 # Setup services on your now running cluster, using the Ansible modules for ECS, like this:
 - name: Create task definition for a service running in docker container(s)
   ecs_taskdefinition:
-    family: "{{ ecs_task_name }}"
+    family: "api_gateway"
     containers:
 #      - name: "{{ ecs_task_name }}"
       - name: "api_gateway"
@@ -33,7 +33,30 @@
             awslogs-stream-prefix: ecs
     region: "{{ ecs_ec2_region }}"
     state: present
-  register: my_task_definition
+  register: api_gateway_task_definition
+
+- name: Create task definition for a service running in docker container(s)
+  ecs_taskdefinition:
+    family: "service_discovery"
+    containers:
+      #      - name: "{{ ecs_task_name }}"
+      - name: "service_discovery"
+        cpu: 2
+        memory: 500
+        image: "foo:bar"
+        portMappings:
+          - containerPort: "{{ ecs_container_port }}"
+        #    hostPort: "{{ ecs_host_port }}"
+        # needs more params here, see docs
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: "/ecs/service-discovery"
+            awslogs-region: "{{ ecs_ec2_region }}"
+            awslogs-stream-prefix: ecs
+    region: "{{ ecs_ec2_region }}"
+    state: present
+  register: service_discovery_task_definition
 
 - name: Get target group arn
   elb_target_group_facts:
@@ -44,19 +67,31 @@
 
 - debug: var=tg verbosity=3
 
-- name: Create service running on the ECS cluster
+- name: Create api-gateway service running on the ECS cluster
   ecs_service:
     state: present
-    name: "{{ ecs_srvc_name }}"
+    name: "api-gateway-ecs-service"
     desired_count: 2
     cluster: "{{ ecs_cluster_name }}"
-    task_definition: "{{ my_task_definition.taskdefinition.taskDefinitionArn }}"
+    task_definition: "{{ api_gateway_task_definition.taskdefinition.taskDefinitionArn }}"
     region: "{{ ecs_ec2_region }}"
     load_balancers:
       - targetGroupArn: "{{ tg.target_groups[0].target_group_arn }}"
-        containerName: "{{ ecs_app_name }}"
+        containerName: "api_gateway"
         containerPort: "{{ ecs_container_port }}"
 
+- name: Create service-discovery service running on the ECS cluster
+  ecs_service:
+    state: present
+    name: "service-discovery-ecs-service"
+    desired_count: 2
+    cluster: "{{ ecs_cluster_name }}"
+    task_definition: "{{ service_discovery_task_definition.taskdefinition.taskDefinitionArn }}"
+    region: "{{ ecs_ec2_region }}"
+    load_balancers:
+      - targetGroupArn: "{{ tg.target_groups[0].target_group_arn }}"
+        containerName: "service_discovery"
+        containerPort: "8761"
 
 # Permissions: IAM role for permissions on EC2 instances
 - name: "AWS | IAM | Create IAM role needed for cluster EC2 instances access to AWS EC2 services"
