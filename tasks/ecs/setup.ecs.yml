@@ -27,7 +27,21 @@
         logConfiguration:
           logDriver: awslogs
           options:
-            awslogs-group: "/ecs/{{ ecs_task_name }}"
+            awslogs-group: "/ecs/api-gateway"
+            awslogs-region: "{{ ecs_ec2_region }}"
+            awslogs-stream-prefix: ecs
+      - name: "iac-docker-api-gateway"
+        cpu: 2
+        memory: 500
+        image: "foo:bar"
+        portMappings:
+          - containerPort: "8761"
+        #    hostPort: "{{ ecs_host_port }}"
+        # needs more params here, see docs
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: "/ecs/dicovery-service"
             awslogs-region: "{{ ecs_ec2_region }}"
             awslogs-stream-prefix: ecs
     region: "{{ ecs_ec2_region }}"
