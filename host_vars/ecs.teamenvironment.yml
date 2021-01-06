@@ -13,7 +13,7 @@ ecs_container_port: 8080
 ecs_host_port: 8080
 
 #ECS load-balancer name
-ecs_tg_name: 'pm-alb-tg'
+ecs_tg_name: 'pm-alb-tg-new'
 ecs_alb_name: 'pm-alb'
 ecs_alb_listener_port: 8080
 
