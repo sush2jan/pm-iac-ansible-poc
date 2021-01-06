@@ -16,14 +16,20 @@
   ecs_taskdefinition:
     family: "{{ ecs_task_name }}"
     containers:
-      - name: "{{ ecs_task_name }}"
+      - name: "iac-docker-api-gateway"
         cpu: 2
         memory: 500
         image: "foo:bar"
         portMappings:
           - containerPort: "{{ ecs_container_port }}"
-            hostPort: "{{ ecs_host_port }}"
+        #    hostPort: "{{ ecs_host_port }}"
         # needs more params here, see docs
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: "/ecs/{{ ecs_task_name }}"
+            awslogs-region: "{{ ecs_ec2_region }}"
+            awslogs-stream-prefix: ecs
     region: "{{ ecs_ec2_region }}"
     state: present
   register: my_task_definition
