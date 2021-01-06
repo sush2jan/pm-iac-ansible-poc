@@ -45,7 +45,7 @@
         memory: 500
         image: "foo:bar"
         portMappings:
-          - containerPort: "{{ ecs_container_port }}"
+          - containerPort: "8761"
         #    hostPort: "{{ ecs_host_port }}"
         # needs more params here, see docs
         logConfiguration:
