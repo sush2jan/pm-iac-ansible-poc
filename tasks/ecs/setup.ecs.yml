@@ -16,7 +16,7 @@
   ecs_taskdefinition:
     family: "{{ ecs_task_name }}"
     containers:
-      - name: "{ ecs_task_name }}"
+      - name: "{{ ecs_task_name }}"
         cpu: 2
         memory: 500
         image: "foo:bar"
