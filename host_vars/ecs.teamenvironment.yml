@@ -3,7 +3,7 @@ ecs_instance_type: "t2.micro"
 
 # Region for EC2 launches
 ecs_ec2_region: "{{ aws_region }}"
-aws_accounr_id: 214837313196
+aws_account_id: 214837313196
 
 ecs_cluster_name: 'pm-ecs-cluster'
 ecs_ssh_key_name: "{{ vpc_key_pair_name }}"
