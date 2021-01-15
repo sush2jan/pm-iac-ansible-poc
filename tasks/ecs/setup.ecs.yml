@@ -148,7 +148,7 @@
     security_groups: "{{ ecs_security_group_ids }}"
     instance_type: "{{ ecs_instance_type }}"
     instance_monitoring: "{{ ecs_instance_monitoring }}"
-    instance_profile_name: "{{ ecs_instance_iam_role }}"
+    instance_profile_name: "arn:aws:iam::{{ aws_account_id }}:instance-profile/{{ ecs_instance_iam_role }}"
     assign_public_ip: "{{ ecs_assign_public_ip }}"
     user_data: "{{ ecs_userdata }}"
     region: "{{ ecs_ec2_region }}"
